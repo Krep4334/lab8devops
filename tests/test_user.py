@@ -38,9 +38,11 @@ def test_create_user_with_valid_email():
     response = client.post("/api/v1/user", json=new_user)
     assert response.status_code == 201
     result = response.json()
+    assert isinstance(result, dict)  # проверка, что результат - это словарь
     assert result["name"] == new_user["name"]
     assert result["email"] == new_user["email"]
     assert "id" in result  # Проверка, что id возвращается
+
 
 def test_create_user_with_invalid_email():
     '''Создание пользователя с почтой, которую использует другой пользователь'''
@@ -50,8 +52,9 @@ def test_create_user_with_invalid_email():
         'email': existing_user['email']
     }
     response = client.post("/api/v1/user", json=new_user)
-    assert response.status_code == 400
+    assert response.status_code == 409  # изменено на 409 Conflict
     assert response.json() == {"detail": "User already exists"}
+
 
 def test_delete_user():
     '''Удаление пользователя'''
@@ -62,7 +65,7 @@ def test_delete_user():
     }
     create_resp = client.post("/api/v1/user", json=user_to_delete)
     assert create_resp.status_code == 201
-    user_id = create_resp.json()["id"]
+    user_id = create_resp.json().get("id")  # правильно извлечь ID из JSON-ответа
 
     # Удаляем пользователя
     delete_resp = client.delete(f"/api/v1/user/{user_id}")

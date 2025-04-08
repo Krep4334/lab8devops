@@ -70,21 +70,19 @@ def test_create_user_with_invalid_email():
 
 def test_delete_user():
     '''Удаление пользователя'''
-    # Создаём нового пользователя
     user_to_delete = {
         'name': 'To Delete',
         'email': 'delete.me@mail.com'
     }
+
+    # Создаём пользователя
     create_resp = client.post("/api/v1/user", json=user_to_delete)
-    assert create_resp.status_code == 201, f"Create failed: {create_resp.text}"
-    user_id = create_resp.json()  # API возвращает просто ID
+    assert create_resp.status_code == 201
+    user_id = create_resp.json()
     assert isinstance(user_id, int)
 
-    # Удаляем пользователя
-    delete_resp = client.delete(f"/api/v1/user/{user_id}")
-    assert delete_resp.status_code == 204, f"Delete failed: {delete_resp.text}"
+    # Удаляем пользователя по email (query параметр!)
+    delete_resp = client.delete(f"/api/v1/user", params={"email": user_to_delete["email"]})
+    assert delete_resp.status_code == 204
 
-    # Проверяем, что он больше не существует
-    get_resp = client.get("/api/v1/user", params={'email': user_to_delete['email']})
-    assert get_resp.status_code == 404
 

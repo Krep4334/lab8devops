@@ -44,28 +44,40 @@ def test_create_user_with_valid_email():
     assert "id" in result  # Проверка, что id возвращается
 
 
+def test_create_user_with_valid_email():
+    '''Создание пользователя с уникальной почтой'''
+    new_user = {
+        'name': 'Test User',
+        'email': 'test.user@mail.com'
+    }
+    response = client.post("/api/v1/user", json=new_user)
+    assert response.status_code == 201
+    user_id = response.json()  # API возвращает просто ID
+    assert isinstance(user_id, int)  # Проверка, что это целое число
+
+
 def test_create_user_with_invalid_email():
-    '''Создание пользователя с почтой, которую использует другой пользователь'''
+    '''Создание пользователя с уже существующей почтой'''
     existing_user = users[0]
     new_user = {
         'name': 'Duplicate Email User',
         'email': existing_user['email']
     }
     response = client.post("/api/v1/user", json=new_user)
-    assert response.status_code == 409  # изменено на 409 Conflict
-    assert response.json() == {"detail": "User with this email already exists"}  # исправлено сообщение
+    assert response.status_code == 409
+    assert response.json() == {"detail": "User with this email already exists"}
 
 
 def test_delete_user():
     '''Удаление пользователя'''
-    # Сначала создаём пользователя
+    # Создаём нового пользователя
     user_to_delete = {
         'name': 'To Delete',
         'email': 'delete.me@mail.com'
     }
     create_resp = client.post("/api/v1/user", json=user_to_delete)
     assert create_resp.status_code == 201
-    user_id = create_resp.json()  # если сервер возвращает только id, то так
+    user_id = create_resp.json()  # API возвращает просто ID
 
     # Удаляем пользователя
     delete_resp = client.delete(f"/api/v1/user/{user_id}")

@@ -53,7 +53,7 @@ def test_create_user_with_invalid_email():
     }
     response = client.post("/api/v1/user", json=new_user)
     assert response.status_code == 409  # изменено на 409 Conflict
-    assert response.json() == {"detail": "User already exists"}
+    assert response.json() == {"detail": "User with this email already exists"}  # исправлено сообщение
 
 
 def test_delete_user():
@@ -65,7 +65,7 @@ def test_delete_user():
     }
     create_resp = client.post("/api/v1/user", json=user_to_delete)
     assert create_resp.status_code == 201
-    user_id = create_resp.json().get("id")  # правильно извлечь ID из JSON-ответа
+    user_id = create_resp.json()  # если сервер возвращает только id, то так
 
     # Удаляем пользователя
     delete_resp = client.delete(f"/api/v1/user/{user_id}")

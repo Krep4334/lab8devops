@@ -76,13 +76,15 @@ def test_delete_user():
         'email': 'delete.me@mail.com'
     }
     create_resp = client.post("/api/v1/user", json=user_to_delete)
-    assert create_resp.status_code == 201
+    assert create_resp.status_code == 201, f"Create failed: {create_resp.text}"
     user_id = create_resp.json()  # API возвращает просто ID
+    assert isinstance(user_id, int)
 
     # Удаляем пользователя
     delete_resp = client.delete(f"/api/v1/user/{user_id}")
-    assert delete_resp.status_code == 204
+    assert delete_resp.status_code == 204, f"Delete failed: {delete_resp.text}"
 
     # Проверяем, что он больше не существует
     get_resp = client.get("/api/v1/user", params={'email': user_to_delete['email']})
     assert get_resp.status_code == 404
+

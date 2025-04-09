@@ -1,9 +1,12 @@
 FROM python:3.11
 
+WORKDIR /app
+
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-WORKDIR /app
-COPY . .
+COPY src /app/src
 
-ENTRYPOINT [ "python", "-m", "main" ]
+ENV PYTHONPATH=/app
+
+ENTRYPOINT ["python", "-m", "src.main"]
